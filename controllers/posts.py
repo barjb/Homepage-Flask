@@ -7,8 +7,11 @@ def all():
     if request.method == 'GET':
         return poststemp
     elif request.method == 'POST':
-        name = request.json['name']
-        tags = request.json['tags']
+        try:
+            name = request.json['name']
+            tags = request.json['tags']
+        except:
+            return {}
         id = len(poststemp)
         obj = {'id': id, 'name': name, 'tags': tags}
         poststemp.append(obj)
@@ -27,9 +30,45 @@ def byid(id: int):
         except StopIteration:
             return {}
     if request.method == 'PATCH':
-        return 'ok'
+        tags = None
+        name = None
+        try:
+            name = request.json['name']
+        except:
+            pass
+        try:
+            tags = request.json['tags']
+        except:
+            pass
+        obj = {'id': id}
+        elem = filter(lambda e: e['id'] == id, poststemp)
+        try:
+            elem = next(elem)
+            poststemp.remove(elem)
+        except StopIteration:
+            pass
+        if name:
+            obj['name'] = name
+        else:
+            obj['name'] = elem['name']
+        if tags:
+            obj['tags'] = tags
+        else:
+            obj['tags'] = elem['tags']
+        poststemp.insert(id, obj)
+        return obj
     if request.method == 'PUT':
-        return 'ok'
+        name = request.json['name']
+        tags = request.json['tags']
+        obj = {'id': id, 'name': name, 'tags': tags}
+        elem = filter(lambda e: e['id'] == id, poststemp)
+        try:
+            elem = next(elem)
+            poststemp.remove(elem)
+        except StopIteration:
+            pass
+        poststemp.insert(id, obj)
+        return obj
 
 
 def bytag(tag: str):
