@@ -7,7 +7,7 @@ services:
       - .env
     ports:
       - '5432:5432'
-    restart: always
+    restart: on-failure
     volumes:
       - postgres-db:/var/lib/postgresql/data
   homepage:
@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-    command: flask run --host=0.0.0.0 --debug
+    command: flask --app app run --host=0.0.0.0 --debug
     ports:
       - 5000:5000
     volumes:

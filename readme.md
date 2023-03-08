@@ -1,5 +1,8 @@
 # Homepage
 
+## App structure
+- https://github.com/apache/superset/tree/master/superset
+
 ## Running in virtual environment
 ```text
 python -m venv .venv
@@ -55,3 +58,14 @@ flask  run --debug
 
     ENV PATH="/opt/venv/bin:$PATH"
     ```
+
+## postgres
+- psql -U postgres -> enter postgres as user = "postgres"
+- psql - in /bin/bash -> enter postgres cmd
+- \l list databases
+- DROP DATABASE <dbname>;
+- \c db_name - switch to db_name
+- \dt - list tables
+- \d <tablename> describe table
+- DROP TABLE <tablename>;
+- \q - quit from psql
