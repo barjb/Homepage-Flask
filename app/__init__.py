@@ -26,18 +26,9 @@ def create_app(test_config=None):
         pass
 
     from app.posts.api import bp as post_bp
-
     app.register_blueprint(post_bp)
-
-    @app.route('/')
-    def site_map():
-        routes = []
-        print(app.url_map)
-        iter = app.url_map.iter_rules()
-        for rule in iter:
-            routes.append({'url': str(rule), 'methods': str(
-                rule.methods), 'endpoint': rule.endpoint})
-        return routes
+    from app.auth.api import bp as auth_bp
+    app.register_blueprint(auth_bp)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = Config.POSTGRES_URL
     db.init_app(app)

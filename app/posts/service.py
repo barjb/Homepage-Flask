@@ -2,9 +2,9 @@ from typing import List, Optional
 from app.models.post import Post, Tag
 from flask import request
 from app.extensions import db
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from flask_pydantic import validate
-from datetime import datetime
+from app.auth.service import login_required
 
 
 class PostDAO:
@@ -25,14 +25,15 @@ class ResponseModel(BaseModel):
 
 
 class RequestBodyModel(BaseModel):
-    name: str
+    name: str = Field(min_length=5, max_length=100)
     tags: List[str]
-    text: str
+    text: str = Field(min_length=100, max_length=6000)
 
 
 class PatchBodyModel(BaseModel):
     name: Optional[str] = None
     tags: Optional[List[str]] = []
+    text: Optional[str] = None
 
 
 def get_all():
@@ -40,6 +41,7 @@ def get_all():
     return [post.serialize for post in posts]
 
 
+@login_required
 @validate()
 def create(body: RequestBodyModel):
     name = body.name
@@ -108,6 +110,8 @@ def patch_id(id: int, body: PatchBodyModel):
         post.tags = []
         for tag in tags:
             post.tags.append(Tag(text=tag))
+    if text:
+        post.text = text
     db.session.add(post)
     db.session.commit()
     return post.serialize

@@ -39,7 +39,7 @@ flask  run --debug
       - .:/app
     ```
 3. multistage build -x MB
-    1. dockerfile some errors
+    1. dockerfile - There were some errors during building process, so I can't tell the difference in MB between images.
     ```text
     FROM python:3.12.0a5-slim-bullseye as compile-image
     RUN apt-get update
@@ -58,6 +58,23 @@ flask  run --debug
 
     ENV PATH="/opt/venv/bin:$PATH"
     ```
+
+## Models
+- Post - Used for keeping articles/posts
+- Tag - 1:n relation with post
+- User - There is only one user in db. Registration is impossible.
+
+## Endpoints
+- GET /posts
+- POST /posts
+- GET /posts/<str:tag>
+- DEL /posts/<int:id>
+- PATCH /posts/<int:id>
+- PUT /posts/<int:id>
+- GET /posts/tags 
+
+- POST /auth/login - /auth/ endpoints are meant to be accessed by admin. Operations altering state of the database like POST, PUT, PATCH, DELETE must be performed by a logged user.
+- GET /auth/logout
 
 ## postgres
 - psql -U postgres -> enter postgres as user = "postgres"
