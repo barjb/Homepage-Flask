@@ -4,7 +4,8 @@ from flask import request
 from app.extensions import db
 from pydantic import BaseModel, Field
 from flask_pydantic import validate
-from app.auth.service import login_required
+
+from flask_jwt_extended import jwt_required
 
 
 class PostDAO:
@@ -41,13 +42,15 @@ def get_all():
     return [post.serialize for post in posts]
 
 
-@login_required
+@jwt_required()
 @validate()
 def create(body: RequestBodyModel):
     name = body.name
     tags = body.tags
     text = body.text
     post = Post(title=name, tags=[], text=text)
+    access_token = request.headers.get('access_token')
+    print('token: ', access_token)
     for tag in tags:
         post.tags.append(Tag(text=tag))
     db.session.add(post)
@@ -64,6 +67,7 @@ def get_id(id: int):
     return post.serialize
 
 
+@jwt_required()
 @validate()
 def delete_id(id: int):
     post = db.session.execute(
@@ -75,6 +79,7 @@ def delete_id(id: int):
     return post.serialize
 
 
+@jwt_required()
 @validate()
 def put_id(id: int, body: RequestBodyModel):
     name = body.name
@@ -95,6 +100,7 @@ def put_id(id: int, body: RequestBodyModel):
     return post.serialize
 
 
+@jwt_required()
 @validate()
 def patch_id(id: int, body: PatchBodyModel):
     name = body.name

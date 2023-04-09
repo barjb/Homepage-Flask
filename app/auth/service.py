@@ -1,14 +1,12 @@
-from flask import session, request, g
+from flask import request
 from werkzeug.security import check_password_hash
 from app.extensions import db
 from app.models.user import User
-import functools
 
-
-def root():
-    if 'user_id' in session:
-        return f'Loggged in as {session["user_id"]}'
-    return f'Not Loggged in'
+from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask import jsonify
 
 
 def login():
@@ -18,33 +16,18 @@ def login():
     user = db.session.execute(
         db.select(User).where(User.login == login)).scalar()
     if user is None:
-        return 'user does not exist'
+        return jsonify({"msg": 'user does not exist'}), 401
+
     if check_password_hash(user.password, password):
-        session.clear()
-        session['user_id'] = user.id
-        return 'ok'
+        access_token = create_access_token(identity=login, fresh=True)
+        refresh_token = create_refresh_token(identity=login)
+        return jsonify(access_token=access_token, refresh_token=refresh_token), 200
     else:
-        return 'passwords do not match'
+        return jsonify({"msg": 'passwords do not match'}), 401
 
 
-def logout():
-    session.pop('user_id', None)
-    return 'ok'
-
-
-def load_logged_in_user():
-    user_id = session.get('user_id')
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = db.session.execute(
-            db.select(User).where(User.id == user_id)).scalar()
-
-
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return 'denied', 400
-        return view(**kwargs)
-    return wrapped_view
+@jwt_required(refresh=True)
+def refresh():
+    current = get_jwt_identity()
+    access_token = create_access_token(identity=current, fresh=False)
+    return jsonify(access_token=access_token)
