@@ -4,7 +4,7 @@ services:
     image: postgres:latest
     container_name: homepage-postgres-db
     env_file:
-      - .env
+      - .env.dev
     ports:
       - '5432:5432'
     restart: on-failure
@@ -16,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+    env_file:
+      - .env.dev
     command: gunicorn 'app:create_app()' --bind 0.0.0.0:8000
     ports:
       - 8000:8000
